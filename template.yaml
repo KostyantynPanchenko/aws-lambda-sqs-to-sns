@@ -1,0 +1,28 @@
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  SqsQueueName:
+    Description: 'Required. The SQS queue name'
+    Type: 'String'
+  SnsTopicARN:
+    Description: 'Required. The SNS ARN'
+    Type: 'String'
+  LambdaRole:
+    Description: 'Required. Lambda role'
+    Type: 'String'
+Resources:
+  TransferMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: SqsToSnsHandler
+      Description: Handles SQS messages and send them to SNS topic
+      Runtime: java17
+      Handler: org.example.cloudx.associate.SqsToSnsMessageHandler::handleRequest
+      MemorySize: 512
+      Environment:
+        Variables:
+          SQS_QUEUE_NAME: !Ref SqsQueueName
+          SNS_TOPIC_ARN: !Ref SnsTopicARN
+      Role: !Ref LambdaRole
+      Timeout: 15
+    DeploymentPreference:
+      Type: AllAtOnce
